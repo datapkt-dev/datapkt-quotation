@@ -7,6 +7,11 @@ import QRCodeVue3 from "qrcode-vue3";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
+import PreviewImageWindow from './previewImageWindow.vue'
+
+const isShowImg = ref(false)
+const imgSrc = ref(null)
+
 const router = useRouter()
 const route = useRoute()
 // :item
@@ -52,6 +57,15 @@ const exportToPDF = async () => {
   pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight); // 加入圖片
   pdf.save("download.pdf"); // 下載 PDF
 
+}
+
+const printHandler = () => {
+  window.print()
+}
+
+const showImageHandler = (src) => {
+  imgSrc.value = src
+  isShowImg.value = true
 }
 
 onMounted(() => {
@@ -156,7 +170,7 @@ onMounted(() => {
               <tbody>
                 <tr v-for="(product, index) in apiData.products" :key="index">
                   <td>{{index+1}}</td>
-                  <td>{{product.product_name}}</td>
+                  <td @click="showImageHandler(product.image_url)">{{product.product_name}}</td>
                   <!-- <td>{{item.product_name}}</td> -->
                   <td>{{product.quantity}}</td>
                   <td>{{product.unit_price}}</td>
@@ -216,8 +230,12 @@ onMounted(() => {
         <!-- <div class="download-pdf">
           <button @click="exportToPDF">下載PDF</button>
         </div> -->
+        <div class="download-pdf">
+          <button @click="printHandler">列印</button>
+        </div>
       </div>
     </div>
+    <PreviewImageWindow v-model:value="isShowImg" :imgSrc="imgSrc"/>
 </template>
 <style lang="scss" scoped>
 .content {
@@ -568,9 +586,13 @@ onMounted(() => {
 @media print{
   .content{
     background: #ffffff;
-    .download-pdf{
-      display: none;
+
+    .quotation-info-box{
+      .download-pdf{
+        display: none;
+      }
     }
   }
+  
 }
 </style>
